@@ -1,19 +1,22 @@
 {
   "variables": {
     "chef_version": "provisionerless",
-    "mirror": "http://ftp.openbsd.org"
+    "mirror": "http://ftp.openbsd.org",
+    "puppet_version": "provisionerless"
   },
   "provisioners": [
     {
       "environment_vars": [
         "CHEF_VERSION={{user `chef_version`}}",
-        "MIRROR={{user `mirror`}}"
+        "MIRROR={{user `mirror`}}",
+        "PUPPET_VERSION={{user `puppet_version`}}"
       ],
       "type": "shell",
       "scripts": [
         "scripts/postinstall.sh",
         "scripts/vagrant.sh",
         "scripts/chef.sh",
+        "scripts/puppet.sh",
         "scripts/minimize.sh"
       ],
       "execute_command": "export {{.Vars}} && cat {{.Path}} | su -m"
