@@ -14,16 +14,27 @@ else
     useradd -g _puppet -G daemon -u 580 -d /var/empty -s /sbin/nologin \
       -c "Puppet user" _puppet
 
-    # OpenBSD 5.5 has .484p0, 5.4 has .448
-    if [ `uname -r` = 5.5 ]; then
+    uname_r=`uname -r`
+    # OpenBSD 5.6 requires Ruby 2.0
+    # Previous versions requiere Ruby 1.9 (OpenBSD 5.5 has .484p0,
+    # 5.4 has # .448)
+    if [ $uname_r = 5.6 ]; then
+      pkg_add ruby-2.0.0.481
+    elif [ $uname_r = 5.5 ]; then
       pkg_add ruby-1.9.3.484p0
     else
       pkg_add ruby-1.9.3.448
     fi
 
-    for f in ruby erb irb rdoc ri rake gem testrb ; do
-      ln -sf ${f}19 /usr/local/bin/$f
-    done
+    if [ $uname_r = 5.6 ]; then
+      for f in ruby erb irb rdoc ri rake gem testrb facter hiera puppet ; do
+        ln -sf ${f}20 /usr/local/bin/$f
+      done
+    else
+      for f in ruby erb irb rdoc ri rake gem testrb facter hiera puppet ; do
+        ln -sf ${f}19 /usr/local/bin/$f
+      done
+    fi
 
     if [ x$PUPPET_VERSION = x'latest' ]; then
       gem install puppet --no-ri --no-rdoc
@@ -32,9 +43,5 @@ else
     else
       gem install puppet --no-ri --no-rdoc --version="$PUPPET_VERSION"
     fi
-
-    for f in facter hiera puppet ; do
-      ln -sf ${f}19 /usr/local/bin/$f
-    done
   fi
 fi
